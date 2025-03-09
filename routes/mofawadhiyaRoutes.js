@@ -1,11 +1,12 @@
 const express = require('express');
 const { createMofawadhiya, getAllMofawadhiya } = require('../controllers/mofawadhiyaController');
+
 const router = express.Router();
 
-// Route POST pour ajouter un nouvel Mofawadhiya
+// ✅ Route pour ajouter un nouvel enregistrement
 router.post('/mofawadhiya', createMofawadhiya);
 
-// Route GET pour afficher tous les Mofawadhiya
-router.get('/gmofawadhiya', getAllMofawadhiya);
+// ✅ Route pour récupérer tous les enregistrements
+router.get('/mofawadhiya', getAllMofawadhiya);
 
 module.exports = router;

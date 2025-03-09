@@ -1,14 +1,15 @@
 const Mofawadhiya = require('../models/mofawadhiya');
 
-// Fonction pour ajouter un nouvel enregistrement
+// ✅ Création d'un enregistrement avec validation renforcée
 const createMofawadhiya = async (req, res) => {
-  const { idsrr, nomrr, prenomrr, numtelrr, adresseemailrr, regionr } = req.body;
-
-  if (!idsrr || !nomrr || !prenomrr || !regionr) {
-    return res.status(400).json({ message: 'Champs manquants ou invalides' });
-  }
-
   try {
+    const { idsrr, nomrr, prenomrr, numtelrr, adresseemailrr, regionr } = req.body;
+
+    // Vérification des champs obligatoires
+    if (!idsrr || !nomrr.trim() || !prenomrr.trim() || !regionr.trim()) {
+      return res.status(400).json({ message: 'Tous les champs obligatoires doivent être remplis correctement' });
+    }
+
     const newMofawadhiya = new Mofawadhiya({
       idsrr,
       nomrr,
@@ -19,27 +20,33 @@ const createMofawadhiya = async (req, res) => {
     });
 
     await newMofawadhiya.save();
+
     res.status(201).json({
       message: 'Mofawadhiya ajouté avec succès',
       data: newMofawadhiya,
     });
   } catch (error) {
-    console.error('Erreur lors de l\'ajout:', error); // Plus d'infos sur l'erreur
-    res.status(500).json({ message: 'Erreur lors de l\'ajout de la donnée', error });
+    console.error('Erreur lors de l\'ajout:', error);
+    res.status(500).json({ message: 'Erreur serveur lors de l\'ajout', error: error.message });
   }
 };
 
-// Fonction pour afficher tous les enregistrements
+// ✅ Récupération de tous les enregistrements
 const getAllMofawadhiya = async (req, res) => {
   try {
-    const mofawadhiyas = await Mofawadhiya.find(); // Récupère tous les enregistrements
+    const mofawadhiyas = await Mofawadhiya.find();
+
+    if (mofawadhiyas.length === 0) {
+      return res.status(200).json({ message: 'Aucun enregistrement trouvé', data: [] });
+    }
+
     res.status(200).json({
       message: 'Liste des Mofawadhiya récupérée avec succès',
       data: mofawadhiyas,
     });
   } catch (error) {
-    console.error('Erreur lors de la récupération:', error); // Plus d'infos sur l'erreur
-    res.status(500).json({ message: 'Erreur lors de la récupération des données', error });
+    console.error('Erreur lors de la récupération:', error);
+    res.status(500).json({ message: 'Erreur serveur lors de la récupération', error: error.message });
   }
 };
 

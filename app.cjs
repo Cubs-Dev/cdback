@@ -4,40 +4,51 @@ const dotenv = require("dotenv").config();
 const fileUpload = require("express-fileupload");
 const cors = require("cors");
 const path = require("path");
-const connectDB = require("./config/db");  // Ensure your MongoDB config is correct
+const connectDB = require("./config/db");  // Assurez-vous que votre configuration MongoDB est correcte
 
 const app = express();
 
-// Load environment variables
+// Charger les variables d'environnement
 if (dotenv.error) {
-  console.log("Error loading .env file", dotenv.error);
+  console.log("Erreur lors du chargement du fichier .env", dotenv.error);
   process.exit(1);
 }
 
-// Connect to MongoDB
+// Connexion à MongoDB
 connectDB();
 
-// Middleware for file uploads
+// Middleware pour les uploads de fichiers
 app.use(fileUpload());
 
-// Serve static files
+// Servir les fichiers statiques
 app.use(express.static(path.join(__dirname, "public")));
 
-// CORS configuration
+// Configuration CORS
 const corsOptions = {
-  origin: process.env.ALLOWED_ORIGIN || "*",  // Use the ALLOWED_ORIGIN environment variable
+  origin: (origin, callback) => {
+    // Si ALLOWED_ORIGIN est défini sur "*" alors autoriser toutes les origines
+    if (process.env.ALLOWED_ORIGIN === "*" || origin === process.env.ALLOWED_ORIGIN) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS non autorisé pour cette origine"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE"],  // Méthodes HTTP autorisées
+  allowedHeaders: ["Content-Type", "Authorization"],  // En-têtes autorisés
+  credentials: true,  // Autoriser les cookies/identifiants
 };
+
 app.use(cors(corsOptions));
 
-// Body parser middleware
+// Middleware pour analyser les corps de requête
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use("/api/mofawadhiya", require("./routes/mofawadhiyaRoutes"));
 
-// Start server
+// Démarrer le serveur
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`.green);
+  console.log(`Serveur démarré sur le port ${PORT}`.green);
 });
