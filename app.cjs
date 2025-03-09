@@ -2,27 +2,42 @@ const express = require("express");
 const colors = require("colors");
 const dotenv = require("dotenv").config();
 const fileUpload = require("express-fileupload");
-const PORT = process.env.PORT || 5000;
 const cors = require("cors");
-const connectDB = require("./config/db");
 const path = require("path");
+const connectDB = require("./config/db");  // Ensure your MongoDB config is correct
 
 const app = express();
+
+// Load environment variables
+if (dotenv.error) {
+  console.log("Error loading .env file", dotenv.error);
+  process.exit(1);
+}
+
+// Connect to MongoDB
 connectDB();
+
+// Middleware for file uploads
 app.use(fileUpload());
 
+// Serve static files
 app.use(express.static(path.join(__dirname, "public")));
 
-const corsOptions = { origins: [process.env.ALLOWED_ORIGIN] };
+// CORS configuration
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGIN || "*",  // Use the ALLOWED_ORIGIN environment variable
+};
 app.use(cors(corsOptions));
 
+// Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/products", require("./routes/productRoutes"));
-app.use("/api/stock", require("./routes/stockRoutes"));
-app.use("/api/categories", require("./routes/categoryRoutes"));
-app.use("/api/orders", require("./routes/orderRoutes"));
+// Routes
+app.use("/api/mofawadhiya", require("./routes/mofawadhiyaRoutes"));
 
-app.listen(PORT, () => console.log(`Server started on ${PORT} `));
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`.green);
+});
